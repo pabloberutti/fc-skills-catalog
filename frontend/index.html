@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meta Skills FC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .text-fc { color: #00ff87; } /* Verde Neón */
+        .bg-fc { background-color: #00ff87; color: #0f172a; }
+    </style>
+</head>
+<body class="bg-slate-900 text-white font-sans min-h-screen">
+
+<!-- Encabezado / Header -->
+<header class="bg-slate-950 border-b border-slate-800 p-6 text-center shadow-2xl">
+    <h1 class="text-4xl md:text-5xl font-black uppercase tracking-wider text-white">
+        🎮 <span class="text-fc">Meta</span> Skills
+    </h1>
+    <p class="text-slate-400 mt-2 font-medium tracking-wide">El catálogo definitivo para dominar la cancha</p>
+</header>
+
+<!-- Contenido Principal -->
+<main class="container mx-auto px-4 py-10">
+
+    <div id="filtros" class="mb-10 flex flex-wrap justify-center gap-3">
+        <button class="bg-fc font-bold py-2 px-6 rounded-full transition-transform hover:scale-105 shadow-[0_0_15px_rgba(0,255,135,0.3)]">Todas</button>
+        <button class="bg-slate-800 border border-slate-700 text-slate-300 font-bold py-2 px-6 rounded-full hover:bg-slate-700 transition-colors">En la banda</button>
+        <button class="bg-slate-800 border border-slate-700 text-slate-300 font-bold py-2 px-6 rounded-full hover:bg-slate-700 transition-colors">Dentro del área</button>
+    </div>
+
+    <!-- Grilla de Tarjetas (Se adapta a 1, 2, 3 o 4 columnas según la pantalla) -->
+    <div id="contenedor-skills" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <p class="text-center col-span-full text-slate-400 animate-pulse">Conectando con el servidor...</p>
+    </div>
+
+</main>
+
+<!-- La lógica JavaScript adaptada al nuevo diseño -->
+<script>
+    const urlBase = 'http://localhost:8080/api';
+
+    // 1. Función para cargar las skills (le pasamos la URL para elegir cuáles traer)
+    function cargarSkills(url) {
+        const contenedor = document.getElementById('contenedor-skills');
+        contenedor.innerHTML = '<p class="text-center col-span-full text-slate-400 animate-pulse">Cargando skills...</p>';
+
+        fetch(url)
+            .then(respuesta => respuesta.json())
+            .then(skills => {
+                contenedor.innerHTML = ''; // Borramos el texto de carga
+
+                // Si la zona no tiene skills todavía, avisamos
+                if(skills.length === 0) {
+                    contenedor.innerHTML = '<p class="text-center col-span-full text-slate-400 font-bold mt-10">Todavía no hay skills grabadas para esta zona.</p>';
+                    return;
+                }
+
+                skills.forEach(skill => {
+                    const card = `
+                        <div class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow-xl hover:-translate-y-2 hover:shadow-[0_10px_20px_rgba(0,0,0,0.5)] transition-all duration-300">
+                            <div class="relative bg-black aspect-video flex items-center justify-center border-b border-slate-700">
+                                <video src="${skill.urlVideo}" autoplay loop muted playsinline class="w-full h-full object-cover opacity-80"></video>
+                                <div class="absolute top-3 right-3 bg-black/80 px-3 py-1 rounded-md text-xs font-black uppercase tracking-wider text-fc border border-slate-600/50 backdrop-blur-sm">
+                                    ${skill.zona.nombre}
+                                </div>
+                            </div>
+                            <div class="p-5">
+                                <h2 class="text-xl font-black mb-3 uppercase tracking-wide text-slate-100">${skill.nombre}</h2>
+                                <div class="flex justify-between items-center mb-5 pb-4 border-b border-slate-700/50">
+                                    <span class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Dificultad</span>
+                                    <span class="text-yellow-400 text-lg tracking-widest drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]">${'★'.repeat(skill.estrellas)}</span>
+                                </div>
+                                <div class="bg-slate-900/50 rounded-lg p-3 text-center border border-slate-700/30">
+                                    <p class="text-[10px] text-slate-500 mb-2 uppercase tracking-widest font-bold">Ejecución</p>
+                                    <img src="${skill.urlComando}" alt="Comando" class="mx-auto h-10 object-contain drop-shadow-lg" onerror="this.style.display='none'">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    contenedor.innerHTML += card;
+                });
+            })
+            .catch(error => console.error("Error:", error));
+    }
+
+    // 2. Función para crear los botones de Filtro dinámicamente
+    function cargarZonas() {
+        fetch(`${urlBase}/zonas`)
+            .then(respuesta => respuesta.json())
+            .then(zonas => {
+                const contenedorFiltros = document.getElementById('filtros');
+
+                // Empezamos siempre con el botón fijo de "Todas"
+                let botonesHTML = `
+                    <button onclick="cargarSkills('${urlBase}/skills')"
+                            class="bg-fc font-bold py-2 px-6 rounded-full transition-transform hover:scale-105 shadow-[0_0_15px_rgba(0,255,135,0.3)] text-slate-900">
+                        Todas
+                    </button>
+                `;
+
+                // Recorremos las zonas de MySQL y creamos un botón para cada una
+                zonas.forEach(zona => {
+                    botonesHTML += `
+                        <button onclick="cargarSkills('${urlBase}/skills/zona/${zona.id}')"
+                                class="bg-slate-800 border border-slate-700 text-slate-300 font-bold py-2 px-6 rounded-full hover:bg-slate-700 hover:text-white transition-colors">
+                            ${zona.nombre}
+                        </button>
+                    `;
+                });
+
+                contenedorFiltros.innerHTML = botonesHTML;
+            });
+    }
+
+    // 3. ¡Le damos arranque al motor cuando abre la página!
+    cargarZonas();
+    cargarSkills(`${urlBase}/skills`);
+</script>
+</body>
+</html>
