@@ -23,6 +23,16 @@
 <!-- Contenido Principal -->
 <main class="container mx-auto px-4 py-10">
 
+    <!-- Barra de Búsqueda -->
+    <div class="max-w-md mx-auto mb-8 relative">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <span>🔍</span>
+        </div>
+        <input type="text" id="buscador" oninput="filtrarSkills()"
+               class="w-full bg-slate-800/50 border border-slate-700 text-white rounded-full py-3 pl-12 pr-4 focus:outline-none focus:border-fc focus:ring-1 focus:ring-fc transition-all shadow-lg placeholder-slate-500"
+               placeholder="Buscar skill (ej. Ruleta, Elástica...)">
+    </div>
+
     <div id="filtros" class="mb-10 flex flex-wrap justify-center gap-3">
         <button class="bg-fc font-bold py-2 px-6 rounded-full transition-transform hover:scale-105 shadow-[0_0_15px_rgba(0,255,135,0.3)]">Todas</button>
         <button class="bg-slate-800 border border-slate-700 text-slate-300 font-bold py-2 px-6 rounded-full hover:bg-slate-700 transition-colors">En la banda</button>
@@ -33,89 +43,30 @@
     <div id="contenedor-skills" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         <p class="text-center col-span-full text-slate-400 animate-pulse">Conectando con el servidor...</p>
     </div>
-
 </main>
 
-<!-- La lógica JavaScript adaptada al nuevo diseño -->
-<script>
-    const urlBase = 'http://localhost:8080/api';
+<!-- Modal de Video (Modo Cine) -->
+<div id="video-modal" class="hidden fixed inset-0 z-50 bg-black/95 flex-col items-center justify-center p-4 transition-opacity duration-300 opacity-0">
+    <!-- Botón de cerrar -->
+    <button onclick="cerrarModal()" class="absolute top-6 right-6 text-slate-400 hover:text-fc text-5xl font-bold cursor-pointer transition-colors">&times;</button>
 
-    // 1. Función para cargar las skills (le pasamos la URL para elegir cuáles traer)
-    function cargarSkills(url) {
-        const contenedor = document.getElementById('contenedor-skills');
-        contenedor.innerHTML = '<p class="text-center col-span-full text-slate-400 animate-pulse">Cargando skills...</p>';
+    <!-- Título -->
+    <h3 id="modal-titulo" class="text-2xl md:text-4xl font-black text-white uppercase tracking-wider mb-4 text-center shadow-black drop-shadow-lg"></h3>
 
-        fetch(url)
-            .then(respuesta => respuesta.json())
-            .then(skills => {
-                contenedor.innerHTML = ''; // Borramos el texto de carga
+    <!-- Contenedor del Comando en pantalla grande -->
+    <div id="modal-comando-contenedor" class="mb-6 bg-slate-900/80 rounded-xl p-4 text-center border border-slate-700/50 min-w-[300px]">
+        <p class="text-[12px] text-slate-400 mb-2 uppercase tracking-widest font-bold">Ejecución</p>
+        <div id="modal-comando" class="flex flex-wrap justify-center items-center mt-2">
+            <!-- Acá JavaScript inyecta los botones -->
+        </div>
+    </div>
 
-                // Si la zona no tiene skills todavía, avisamos
-                if(skills.length === 0) {
-                    contenedor.innerHTML = '<p class="text-center col-span-full text-slate-400 font-bold mt-10">Todavía no hay skills grabadas para esta zona.</p>';
-                    return;
-                }
+    <!-- Reproductor grande -->
+    <div class="w-full max-w-4xl bg-slate-900 rounded-xl overflow-hidden shadow-[0_0_40px_rgba(0,255,135,0.15)] border border-slate-700 relative">
+        <video id="modal-video" controls autoplay loop playsinline class="w-full aspect-video object-cover"></video>
+    </div>
+</div>
 
-                skills.forEach(skill => {
-                    const card = `
-                        <div class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow-xl hover:-translate-y-2 hover:shadow-[0_10px_20px_rgba(0,0,0,0.5)] transition-all duration-300">
-                            <div class="relative bg-black aspect-video flex items-center justify-center border-b border-slate-700">
-                                <video src="${skill.urlVideo}" autoplay loop muted playsinline class="w-full h-full object-cover opacity-80"></video>
-                                <div class="absolute top-3 right-3 bg-black/80 px-3 py-1 rounded-md text-xs font-black uppercase tracking-wider text-fc border border-slate-600/50 backdrop-blur-sm">
-                                    ${skill.zona.nombre}
-                                </div>
-                            </div>
-                            <div class="p-5">
-                                <h2 class="text-xl font-black mb-3 uppercase tracking-wide text-slate-100">${skill.nombre}</h2>
-                                <div class="flex justify-between items-center mb-5 pb-4 border-b border-slate-700/50">
-                                    <span class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Dificultad</span>
-                                    <span class="text-yellow-400 text-lg tracking-widest drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]">${'★'.repeat(skill.estrellas)}</span>
-                                </div>
-                                <div class="bg-slate-900/50 rounded-lg p-3 text-center border border-slate-700/30">
-                                    <p class="text-[10px] text-slate-500 mb-2 uppercase tracking-widest font-bold">Ejecución</p>
-                                    <img src="${skill.urlComando}" alt="Comando" class="mx-auto h-10 object-contain drop-shadow-lg" onerror="this.style.display='none'">
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    contenedor.innerHTML += card;
-                });
-            })
-            .catch(error => console.error("Error:", error));
-    }
-
-    // 2. Función para crear los botones de Filtro dinámicamente
-    function cargarZonas() {
-        fetch(`${urlBase}/zonas`)
-            .then(respuesta => respuesta.json())
-            .then(zonas => {
-                const contenedorFiltros = document.getElementById('filtros');
-
-                // Empezamos siempre con el botón fijo de "Todas"
-                let botonesHTML = `
-                    <button onclick="cargarSkills('${urlBase}/skills')"
-                            class="bg-fc font-bold py-2 px-6 rounded-full transition-transform hover:scale-105 shadow-[0_0_15px_rgba(0,255,135,0.3)] text-slate-900">
-                        Todas
-                    </button>
-                `;
-
-                // Recorremos las zonas de MySQL y creamos un botón para cada una
-                zonas.forEach(zona => {
-                    botonesHTML += `
-                        <button onclick="cargarSkills('${urlBase}/skills/zona/${zona.id}')"
-                                class="bg-slate-800 border border-slate-700 text-slate-300 font-bold py-2 px-6 rounded-full hover:bg-slate-700 hover:text-white transition-colors">
-                            ${zona.nombre}
-                        </button>
-                    `;
-                });
-
-                contenedorFiltros.innerHTML = botonesHTML;
-            });
-    }
-
-    // 3. ¡Le damos arranque al motor cuando abre la página!
-    cargarZonas();
-    cargarSkills(`${urlBase}/skills`);
-</script>
+<script src="app.js"></script>
 </body>
 </html>
