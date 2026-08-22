@@ -23,6 +23,15 @@ public class Skill {
     @JoinColumn(name = "zona_id")
     private Zona zona;
 
+    @Column(length = 255)
+    private String etiquetas; // Para guardar: "Meta, Cancelable, etc"
+
+    @Column(columnDefinition = "TEXT")
+    private String escenario; // Para el guión narrativo
+
+    @Column(columnDefinition = "int default 0")
+    private Integer vistas = 0;
+
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 
@@ -40,4 +49,13 @@ public class Skill {
 
     public Zona getZona() { return zona; }
     public void setZona(Zona zona) { this.zona = zona; }
+
+    public String getEtiquetas() { return etiquetas; }
+    public void seteEtiquetas(String etiquetas) { this.etiquetas = etiquetas; }
+
+    public String getEscenario() { return escenario; }
+    public void setEscenario(String escenario) { this.escenario = escenario; }
+
+    public Integer getVistas() { return vistas; }
+    public void setVistas(Integer vistas) { this.vistas = vistas; }
 }

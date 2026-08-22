@@ -13,13 +13,28 @@ public class SkillService {
     @Autowired
     private SkillRepository skillRepository;
 
-    // Método 1: Trae el catálogo completo
     public List<Skill> obtenerTodasLasSkills() {
         return skillRepository.findAll();
     }
 
-    // Método 2: Trae solo las skills de la zona que le pidamos
     public List<Skill> obtenerSkillsPorZona(Integer zonaId) {
         return skillRepository.findByZonaId(zonaId);
+    }
+
+    public Skill guardarSkill(Skill skill) {
+        return skillRepository.save(skill);
+    }
+
+    public void eliminarSkill(Integer id) {
+        skillRepository.deleteById(id);
+    }
+
+    public void registrarVista(Integer id) {
+        Skill skill = skillRepository.findById(id).orElse(null);
+        if (skill != null) {
+            if (skill.getVistas() == null) skill.setVistas(0);
+            skill.setVistas(skill.getVistas() + 1);
+            skillRepository.save(skill);
+        }
     }
 }
