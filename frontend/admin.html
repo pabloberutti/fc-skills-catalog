@@ -3,279 +3,512 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Meta Skills</title>
+    <title>Meta Skills FC - Panel Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .text-fc { color: #00ff87; }
         .bg-fc { background-color: #00ff87; color: #0f172a; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-200 font-sans min-h-screen p-6">
+<body class="bg-slate-900 text-white font-sans min-h-screen p-6">
 
-<div class="max-w-6xl mx-auto">
-    <!-- Header -->
+<div class="max-w-5xl mx-auto">
+    <!-- Encabezado -->
     <header class="flex justify-between items-center mb-8 pb-4 border-b border-slate-800">
-        <h1 class="text-3xl font-black uppercase tracking-wider text-white">
-            ⚙️ Panel <span class="text-fc">Admin</span>
-        </h1>
-        <a href="index.html" class="text-slate-400 hover:text-white transition-colors underline">⬅ Volver al Catálogo</a>
+        <div>
+            <h1 class="text-3xl font-black uppercase tracking-wider text-white">
+                ⚙️ Panel <span class="text-fc">Administrador</span>
+            </h1>
+            <p class="text-slate-400 text-sm mt-1">Gestión de catálogo de regates y comandos</p>
+        </div>
+        <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-4 py-2 rounded-lg border border-slate-700 text-sm transition-colors">
+            ← Volver al Catálogo
+        </a>
     </header>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Columna Izquierda: FORMULARIO -->
-        <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl h-fit">
-            <h2 id="form-titulo" class="text-xl font-bold mb-4 text-fc uppercase tracking-wide">Añadir Nueva Skill</h2>
+        <!-- Formulario de Carga -->
+        <section class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl lg:col-span-1 h-fit">
+            <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <span>➕</span> Registrar Nueva Skill
+            </h2>
 
-            <form id="form-skill" onsubmit="guardarSkill(event)" class="space-y-4">
-                <!-- ID Oculto (sirve para saber si estamos editando o creando) -->
-                <input type="hidden" id="skill-id">
+            <form id="form-skill" onsubmit="guardarSkill(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="hidden" id="skillIdEditando" value="">
 
+                <!-- Nombre y Categoría -->
                 <div>
-                    <label class="block text-sm font-bold text-slate-400 mb-1">Nombre de la Jugada</label>
-                    <input type="text" id="nombre" required class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:border-fc focus:outline-none">
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Nombre del Regate</label>
+                    <input type="text" id="nombre" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-fc">
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-bold text-slate-400 mb-1">Dificultad (1-5)</label>
-                        <input type="number" id="estrellas" min="1" max="5" required class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:border-fc focus:outline-none">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Categoría</label>
+                    <select id="categoriaId" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-fc">
+                        <option value="1">Regates de 5 Estrellas</option>
+                        <option value="2">Regates de 4 Estrellas</option>
+                        <option value="3">Fundamentales de Banda</option>
+                        <option value="4">Definición en Área</option>
+                    </select>
+                </div>
+
+                <!-- Asistente de Comandos -->
+                <div class="col-span-1 md:col-span-2 bg-slate-950/80 p-4 rounded-xl border border-slate-800">
+                    <div class="flex justify-between items-center mb-3">
+                        <label class="text-xs font-black text-fc uppercase tracking-wider">🛠️ Asistente de Comandos</label>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] text-slate-400">Destino:</span>
+                            <select id="asistente-destino" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-fc">
+                                <option value="ambos">Ambas consolas</option>
+                                <option value="comandoPs">Solo PlayStation</option>
+                                <option value="comandoXbox">Solo Xbox</option>
+                            </select>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-bold text-slate-400 mb-1">Zona</label>
-                        <select id="zona" required class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:border-fc focus:outline-none">
-                            <option value="">Cargando zonas...</option>
+
+                    <!-- Botones Básicos, Diagonales y Modificadores -->
+                    <div class="flex flex-wrap items-center gap-1.5 mb-3 pb-3 border-b border-slate-800">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase mr-1">Mandos:</span>
+                        <button type="button" onclick="insertarToken('RS')" class="bg-slate-800 hover:bg-slate-700 text-fc text-xs font-black px-2 py-1 rounded border border-slate-700">RS</button>
+                        <button type="button" onclick="insertarToken('LS')" class="bg-slate-800 hover:bg-slate-700 text-fc text-xs font-black px-2 py-1 rounded border border-slate-700">LS</button>
+                        <button type="button" onclick="insertarToken('L1')" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-2 py-1 rounded border border-slate-700">L1/LB</button>
+                        <button type="button" onclick="insertarToken('R1')" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-2 py-1 rounded border border-slate-700">R1/RB</button>
+                        <button type="button" onclick="insertarToken('L2')" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-2 py-1 rounded border border-slate-700">L2/LT</button>
+                        <button type="button" onclick="insertarToken('R2')" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-2 py-1 rounded border border-slate-700">R2/RT</button>
+
+                        <!-- Direccionales (Cardinales y Diagonales) -->
+                        <span class="text-[10px] font-bold text-slate-500 uppercase ml-2 mr-1">Rumbo:</span>
+                        <button type="button" onclick="insertarToken('⬆')" class="bg-slate-800 hover:bg-slate-700 text-fc text-xs font-bold px-2 py-1 rounded border border-slate-700">⬆</button>
+                        <button type="button" onclick="insertarToken('↗')" class="bg-slate-800 hover:bg-slate-700 text-fc text-xs font-bold px-2 py-1 rounded border border-slate-700">↗</button>
+                        <button type="button" onclick="insertarToken('➡')" class="bg-slate-800 hover:bg-slate-700 text-fc text-xs font-bold px-2 py-1 rounded border border-slate-700">➡</button>
+                        <button type="button" onclick="insertarToken('↘')" class="bg-slate-800 hover:bg-slate-700 text-fc text-xs font-bold px-2 py-1 rounded border border-slate-700">↘</button>
+                        <button type="button" onclick="insertarToken('⬇')" class="bg-slate-800 hover:bg-slate-700 text-fc text-xs font-bold px-2 py-1 rounded border border-slate-700">⬇</button>
+                        <button type="button" onclick="insertarToken('↙')" class="bg-slate-800 hover:bg-slate-700 text-fc text-xs font-bold px-2 py-1 rounded border border-slate-700">↙</button>
+                        <button type="button" onclick="insertarToken('⬅')" class="bg-slate-800 hover:bg-slate-700 text-fc text-xs font-bold px-2 py-1 rounded border border-slate-700">⬅</button>
+                        <button type="button" onclick="insertarToken('↖')" class="bg-slate-800 hover:bg-slate-700 text-fc text-xs font-bold px-2 py-1 rounded border border-slate-700">↖</button>
+
+                        <!-- Acciones -->
+                        <button type="button" onclick="insertarBotonAccion('✖', 'A')" class="bg-slate-800 hover:bg-slate-700 text-blue-400 font-black text-xs px-2 py-1 rounded border border-slate-700">✖ / A</button>
+                        <button type="button" onclick="insertarBotonAccion('⭕', 'B')" class="bg-slate-800 hover:bg-slate-700 text-rose-400 font-black text-xs px-2 py-1 rounded border border-slate-700">⭕ / B</button>
+                        <button type="button" onclick="insertarBotonAccion('■', 'X')" class="bg-slate-800 hover:bg-slate-700 text-pink-400 font-black text-xs px-2 py-1 rounded border border-slate-700">■ / X</button>
+                        <button type="button" onclick="insertarBotonAccion('▲', 'Y')" class="bg-slate-800 hover:bg-slate-700 text-amber-400 font-black text-xs px-2 py-1 rounded border border-slate-700">▲ / Y</button>
+
+                        <!-- Modificadores Tácticos -->
+                        <span class="text-[10px] font-bold text-slate-500 uppercase ml-2 mr-1">Modo:</span>
+                        <button type="button" onclick="insertarToken('(MANTENER)')" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-black text-xs px-2 py-1 rounded border border-amber-500/40">MANTENER</button>
+                        <button type="button" onclick="insertarToken('(TOQUE)')" class="bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 font-black text-xs px-2 py-1 rounded border border-sky-500/40">TOQUE</button>
+
+                        <!-- Conectores -->
+                        <button type="button" onclick="insertarToken(' + ')" class="bg-fc text-slate-950 text-xs font-black px-2 py-1 rounded">+</button>
+                        <button type="button" onclick="insertarToken(' OR ')" class="bg-amber-400 text-slate-950 text-xs font-black px-2 py-1 rounded">OR</button>
+                        <button type="button" onclick="limpiarComandos()" class="text-red-400 hover:text-red-300 text-xs font-bold ml-auto">Limpiar</button>
+                    </div>
+
+                    <!-- Generador de Giro Reloj -->
+                    <div class="flex flex-wrap items-center gap-2 bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase">Giro:</span>
+                        <select id="giro-stick" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-fc font-bold">
+                            <option value="RS">RS</option>
+                            <option value="LS">LS</option>
                         </select>
+                        <span class="text-xs text-slate-500">De</span>
+                        <select id="giro-desde" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white">
+                            <option value="12">12</option><option value="3" selected>3</option><option value="6">6</option><option value="9">9</option>
+                        </select>
+                        <span class="text-xs text-slate-500">A</span>
+                        <select id="giro-hasta" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white">
+                            <option value="12">12</option><option value="3">3</option><option value="6">6</option><option value="9" selected>9</option>
+                        </select>
+                        <select id="giro-sentido" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white">
+                            <option value="CW">Horario ↻</option>
+                            <option value="CCW">Antihorario ↺</option>
+                        </select>
+                        <button type="button" onclick="insertarGiroReloj()" class="bg-fc text-slate-950 font-black text-xs px-3 py-1 rounded uppercase hover:opacity-90">
+                            + Insertar Giro
+                        </button>
+                    </div>
+
+                    <!-- Inputs de Comandos -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">PlayStation</label>
+                            <input type="text" id="comandoPs" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white font-mono focus:border-fc focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Xbox</label>
+                            <input type="text" id="comandoXbox" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white font-mono focus:border-fc focus:outline-none">
+                        </div>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-bold text-slate-400 mb-1">Video de la Jugada (.mp4)</label>
-                    <input type="file" id="archivo-video" accept="video/mp4" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-fc file:text-slate-900 hover:file:bg-green-400">
-                    <input type="hidden" id="url-video-oculto">
+                <!-- Archivo de Video y Análisis -->
+                <div class="col-span-1 md:col-span-2">
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Video Demostrativo (.mp4)</label>
+                    <input type="file" id="archivoVideo" accept="video/mp4,video/webm" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-slate-400 file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-black file:bg-fc file:text-slate-950 cursor-pointer">
+                    <input type="hidden" id="urlVideoFallback" value="assets/videos/elastica.mp4">
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-bold text-slate-400 mb-1">Etiquetas (separadas por coma)</label>
-                        <input type="text" id="etiquetas" placeholder="Ej: Meta, Cancelable, Nerfeado, Cancherear" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:border-fc focus:outline-none">
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-bold text-slate-400 mb-1">Escenario Narrativo</label>
-                        <textarea id="escenario" rows="3" placeholder="Contexto ideal para usar esta jugada..." class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:border-fc focus:outline-none resize-none"></textarea>
-                    </div>
+                <div class="col-span-1 md:col-span-2">
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Análisis Táctico / Lore</label>
+                    <textarea id="descripcionTactico" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-fc"></textarea>
                 </div>
 
-                <!-- El campo mágico de Comandos -->
-                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50">
-                    <label class="block text-sm font-bold text-slate-400 mb-2">Comando de Ejecución</label>
-
-                    <!-- BOTONERA GAMER -->
-                    <div class="flex flex-wrap gap-1 mb-2">
-                        <button type="button" onclick="insertarEnComando(' + ')" class="bg-slate-700 hover:bg-fc hover:text-slate-900 px-2 py-1 rounded text-xs font-bold transition-colors">+</button>
-                        <button type="button" onclick="insertarEnComando('RS ')" class="bg-slate-700 hover:bg-fc hover:text-slate-900 px-2 py-1 rounded text-xs font-bold transition-colors">RS</button>
-                        <button type="button" onclick="insertarEnComando('LS ')" class="bg-slate-700 hover:bg-fc hover:text-slate-900 px-2 py-1 rounded text-xs font-bold transition-colors">LS</button>
-                        <button type="button" onclick="insertarEnComando('L1 ')" class="bg-slate-700 hover:bg-fc hover:text-slate-900 px-2 py-1 rounded text-xs font-bold transition-colors">L1</button>
-                        <button type="button" onclick="insertarEnComando('R1 ')" class="bg-slate-700 hover:bg-fc hover:text-slate-900 px-2 py-1 rounded text-xs font-bold transition-colors">R1</button>
-                        <div class="w-full h-1"></div> <!-- Salto de línea -->
-                        <button type="button" onclick="insertarEnComando('➡')" class="bg-slate-700 hover:bg-fc hover:text-slate-900 px-2 py-1 rounded text-xs font-bold transition-colors">➡</button>
-                        <button type="button" onclick="insertarEnComando('⬅')" class="bg-slate-700 hover:bg-fc hover:text-slate-900 px-2 py-1 rounded text-xs font-bold transition-colors">⬅</button>
-                        <button type="button" onclick="insertarEnComando('⬆')" class="bg-slate-700 hover:bg-fc hover:text-slate-900 px-2 py-1 rounded text-xs font-bold transition-colors">⬆</button>
-                        <button type="button" onclick="insertarEnComando('⬇')" class="bg-slate-700 hover:bg-fc hover:text-slate-900 px-2 py-1 rounded text-xs font-bold transition-colors">⬇</button>
-                        <button type="button" onclick="insertarEnComando('⤹')" class="bg-slate-700 hover:bg-fc hover:text-slate-900 px-2 py-1 rounded text-xs font-bold transition-colors">⤹</button>
-                        <button type="button" onclick="insertarEnComando('↻')" class="bg-slate-700 hover:bg-fc hover:text-slate-900 px-2 py-1 rounded text-xs font-bold transition-colors">↻</button>
-                        <button type="button" onclick="insertarEnComando(' (Mantener)')" class="bg-slate-700 hover:bg-fc hover:text-slate-900 px-2 py-1 rounded text-xs font-bold transition-colors">Mantener</button>
-                    </div>
-
-                    <input type="text" id="url-comando" required placeholder="Ej: L1 + RS ➡" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-white focus:border-fc focus:outline-none">
-                </div>
-
-                <div class="flex gap-2 pt-4">
-                    <button type="submit" class="flex-1 bg-fc text-slate-900 font-black py-2 rounded hover:opacity-90 transition-opacity">GUARDAR</button>
-                    <button type="button" onclick="limpiarFormulario()" class="bg-slate-700 text-white font-bold py-2 px-4 rounded hover:bg-slate-600 transition-colors">Cancelar</button>
+                <!-- Botones de Acción -->
+                <div class="col-span-1 md:col-span-2 flex items-center gap-3">
+                    <button type="submit" id="btn-submit" class="flex-1 bg-fc font-black py-3 rounded-lg text-slate-950 uppercase tracking-wider text-xs hover:scale-[1.01] transition-transform">
+                        Guardar Jugada
+                    </button>
+                    <button type="button" id="btn-cancelar-edicion" onclick="cancelarEdicion()" class="hidden bg-slate-800 text-slate-400 hover:text-white font-bold py-3 px-6 rounded-lg text-xs uppercase">
+                        Cancelar
+                    </button>
                 </div>
             </form>
-        </div>
+        </section>
 
-        <!-- Columna Derecha: LISTADO DE SKILLS -->
-        <div class="lg:col-span-2 bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl overflow-x-auto">
-            <h2 class="text-xl font-bold mb-4 text-white uppercase tracking-wide">Skills Existentes</h2>
-            <table class="w-full text-left border-collapse">
-                <thead>
-                <tr class="border-b border-slate-700 text-slate-400 text-sm uppercase">
-                    <th class="py-3 px-2">ID</th>
-                    <th class="py-3 px-2">Nombre</th>
-                    <th class="py-3 px-2">Zona</th>
-                    <th class="py-3 px-2 text-right">Acciones</th>
-                </tr>
-                </thead>
-                <tbody id="tabla-skills" class="text-sm">
-                <!-- Las skills se inyectan acá -->
-                </tbody>
-            </table>
-        </div>
+        <!-- Tabla de Registros y Estadísticas -->
+        <section class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl lg:col-span-2">
+            <h2 class="text-lg font-bold text-white mb-4 flex items-center justify-between">
+                <span class="flex items-center gap-2"><span>📋</span> Jugadas Registradas</span>
+                <span id="total-skills" class="text-xs bg-slate-900 px-3 py-1 rounded-full text-fc border border-slate-700">0 items</span>
+            </h2>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-900/60 text-slate-400 uppercase text-[11px] tracking-wider border-b border-slate-700">
+                    <tr>
+                        <th class="py-3 px-3">ID</th>
+                        <th class="py-3 px-3">Nombre</th>
+                        <th class="py-3 px-3">Categoría</th>
+                        <th class="py-3 px-3 text-center">Vistas</th>
+                        <th class="py-3 px-3 text-right">Acción</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tabla-skills" class="divide-y divide-slate-700/50">
+                    <tr>
+                        <td colspan="5" class="text-center py-6 text-slate-500">Cargando catálogo...</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </div>
 </div>
 
 <script>
-    const urlBase = 'http://localhost:8080/api';
+    (function verificarAdmin() {
+        const usuarioRaw = localStorage.getItem('fc_user');
+        const usuario = usuarioRaw ? JSON.parse(usuarioRaw) : null;
 
-    // 1. Funciones de Carga Inicial
-    async function inicializarAdmin() {
-        await cargarZonasEnSelect();
-        await cargarTablaSkills();
-    }
+        if (!usuario || usuario.role !== 'ROLE_ADMIN') {
+            alert("Acceso denegado. Se requieren permisos de Administrador.");
+            window.location.href = 'index.html';
+        }
+    })();
 
-    async function cargarZonasEnSelect() {
-        const respuesta = await fetch(`${urlBase}/zonas`);
-        const zonas = await respuesta.json();
-        const select = document.getElementById('zona');
-        select.innerHTML = '<option value="">Seleccioná una zona...</option>';
-        zonas.forEach(z => {
-            select.innerHTML += `<option value="${z.id}">${z.nombre}</option>`;
-        });
-    }
+    const API_URL = 'http://localhost:8080/api/skills';
 
     async function cargarTablaSkills() {
-        const respuesta = await fetch(`${urlBase}/skills`);
-        let skills = await respuesta.json();
-        const tabla = document.getElementById('tabla-skills');
-        tabla.innerHTML = '';
+        try {
+            const res = await fetch(`${API_URL}?size=100`);
+            const data = await res.json();
+            const skills = data.content || [];
 
-        // MAGIA: Ordenamos el array de mayor a menor según las vistas
-        skills.sort((a, b) => (b.vistas || 0) - (a.vistas || 0));
+            document.getElementById('total-skills').textContent = `${skills.length} items`;
+            const tbody = document.getElementById('tabla-skills');
+            tbody.innerHTML = '';
 
-        skills.forEach((skill, index) => {
-            const skillJSON = encodeURIComponent(JSON.stringify(skill));
+            if (skills.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-6 text-slate-500">No hay skills registradas.</td></tr>';
+                return;
+            }
 
-            // Le damos una medallita a los 3 primeros
-            let medalla = '';
-            if(index === 0) medalla = '🥇';
-            else if(index === 1) medalla = '🥈';
-            else if(index === 2) medalla = '🥉';
+            // Ordenar por vistas (ranking descendente)
+            skills.sort((a, b) => (b.vistas || 0) - (a.vistas || 0));
 
-            tabla.innerHTML += `
-                    <tr class="border-b border-slate-700/50 hover:bg-slate-700/20 transition-colors">
-                        <td class="py-3 px-2 text-slate-500 font-mono">${skill.id}</td>
-                        <td class="py-3 px-2 font-bold text-white">
-                            ${medalla} ${skill.nombre}
-                            <span class="ml-2 text-xs bg-slate-900 text-fc px-2 py-1 rounded-full border border-fc/30">
-                                👁️ ${skill.vistas || 0}
-                            </span>
-                        </td>
-                        <td class="py-3 px-2 text-slate-400">${skill.zona.nombre}</td>
-                        <td class="py-3 px-2 text-right">
-                            <button onclick="prepararEdicion('${skillJSON}')" class="text-blue-400 hover:text-blue-300 font-bold px-2">Editar</button>
-                            <button onclick="borrarSkill(${skill.id})" class="text-red-400 hover:text-red-300 font-bold px-2">Borrar</button>
-                        </td>
-                    </tr>
-                `;
+            skills.forEach((skill, index) => {
+                let medalla = '';
+                if (index === 0 && (skill.vistas || 0) > 0) medalla = '🥇';
+                else if (index === 1 && (skill.vistas || 0) > 0) medalla = '🥈';
+                else if (index === 2 && (skill.vistas || 0) > 0) medalla = '🥉';
+
+                tbody.innerHTML += `
+                        <tr class="hover:bg-slate-700/30 transition-colors">
+                            <td class="py-3 px-3 font-mono text-slate-500">${skill.id}</td>
+                            <td class="py-3 px-3 font-bold text-white flex items-center gap-1.5">
+                                <span>${medalla}</span>
+                                <span>${skill.nombre}</span>
+                            </td>
+                            <td class="py-3 px-3 text-slate-300">
+                                <span class="text-xs bg-slate-900 px-2 py-1 rounded border border-slate-700">
+                                    ${skill.categoria} (${'★'.repeat(skill.estrellas || 1)})
+                                </span>
+                            </td>
+                            <td class="py-3 px-3 text-center">
+                                <span class="text-xs font-mono font-bold text-fc bg-slate-950 px-2 py-0.5 rounded border border-fc/20">
+                                    👁️ ${skill.vistas || 0}
+                                </span>
+                            </td>
+                            <td class="py-3 px-3 text-right">
+                                <button onclick="cargarParaEditar(${skill.id})" class="text-blue-400 hover:text-blue-300 font-bold text-xs mr-3">Editar</button>
+                                <button onclick="eliminarSkill(${skill.id})" class="text-red-400 hover:text-red-300 text-xs font-bold px-2 py-1 rounded hover:bg-red-950/40 transition-colors">
+                                    Borrar
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+            });
+        } catch (err) {
+            console.error("Error cargando tabla:", err);
+            document.getElementById('tabla-skills').innerHTML = '<tr><td colspan="5" class="text-center py-6 text-red-400">Error al conectar con la API.</td></tr>';
+        }
+    }
+
+    async function guardarSkill(event) {
+        event.preventDefault();
+        const idEditando = document.getElementById('skillIdEditando').value;
+        let urlVideoFinal = document.getElementById('urlVideoFallback').value;
+        const inputArchivo = document.getElementById('archivoVideo');
+
+        // Subida opcional de video si seleccionó un archivo nuevo
+        if (inputArchivo.files && inputArchivo.files[0]) {
+            const formData = new FormData();
+            formData.append('file', inputArchivo.files[0]);
+
+            try {
+                const uploadRes = await fetch(`${API_URL}/upload-video`, { method: 'POST', body: formData });
+                if (uploadRes.ok) {
+                    const data = await uploadRes.json();
+                    urlVideoFinal = data.urlVideo;
+                } else {
+                    alert("No se pudo subir el video al servidor.");
+                    return;
+                }
+            } catch (e) {
+                alert("Error de conexión al cargar el archivo multimedia.");
+                return;
+            }
+        }
+
+        const payload = {
+            nombre: document.getElementById('nombre').value.trim(),
+            categoriaId: parseInt(document.getElementById('categoriaId').value),
+            urlVideo: urlVideoFinal,
+            descripcionTactico: document.getElementById('descripcionTactico').value.trim(),
+            comandos: [
+                { plataforma: "PlayStation", comando: document.getElementById('comandoPs').value.trim() },
+                { plataforma: "Xbox", comando: document.getElementById('comandoXbox').value.trim() }
+            ]
+        };
+
+        const metodo = idEditando ? 'PUT' : 'POST';
+        const urlFinal = idEditando ? `${API_URL}/${idEditando}` : API_URL;
+
+        try {
+            const res = await fetch(urlFinal, {
+                method: metodo,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                cancelarEdicion();
+                cargarTablaSkills();
+            } else {
+                let detalle = `Error HTTP ${res.status}`;
+                try {
+                    const error = await res.json();
+                    detalle = error.mensaje || error.error || detalle;
+                } catch (_) {}
+                alert(`Error: ${detalle}`);
+            }
+        } catch (err) {
+            console.error("Fallo de red o preflight:", err);
+            alert(`Error de red al conectar con el servidor: ${err.message}`);
+        }
+    }
+
+    async function eliminarSkill(id) {
+        if (!confirm(`¿Eliminar la jugada #${id}?`)) return;
+
+        try {
+            const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                cargarTablaSkills();
+            } else {
+                alert("No se pudo eliminar la skill.");
+            }
+        } catch (err) {
+            console.error("Error eliminando skill:", err);
+        }
+    }
+
+    // Inserción de tokens básicos
+    function insertarToken(token) {
+        const destino = document.getElementById('asistente-destino').value;
+        const inputs = destino === 'ambos'
+            ? [document.getElementById('comandoPs'), document.getElementById('comandoXbox')]
+            : [document.getElementById(destino)];
+
+        inputs.forEach(input => {
+            if (!input) return;
+            const val = input.value.trim();
+            if (token === ' + ' || token === ' OR ') {
+                input.value = val ? `${val}${token}` : '';
+            } else {
+                input.value = val && !val.endsWith('+') && !val.endsWith('OR') ? `${val} ${token}` : `${val}${token}`;
+            }
         });
     }
 
-    // 2. Función de la Botonera Gamer (Inserta donde esté el cursor)
-    function insertarEnComando(texto) {
-        const input = document.getElementById('url-comando');
-        const inicio = input.selectionStart;
-        const fin = input.selectionEnd;
-        const valorActual = input.value;
+    // Inserción de botones frontales según consola seleccionada
+    function insertarBotonAccion(tokenPs, tokenXbox) {
+        const destino = document.getElementById('asistente-destino').value;
+        const inputPs = document.getElementById('comandoPs');
+        const inputXbox = document.getElementById('comandoXbox');
 
-        input.value = valorActual.substring(0, inicio) + texto + valorActual.substring(fin);
-
-        // Devuelve el foco al input
-        input.focus();
-        // Mueve el cursor justo después de lo que insertamos
-        input.selectionStart = input.selectionEnd = inicio + texto.length;
+        if (destino === 'ambos') {
+            insertarEnInput(inputPs, tokenPs);
+            insertarEnInput(inputXbox, tokenXbox);
+        } else if (destino === 'comandoPs') {
+            insertarEnInput(inputPs, tokenPs);
+        } else {
+            insertarEnInput(inputXbox, tokenXbox);
+        }
     }
 
-    // 3. Funciones ABM (Guardar, Editar, Borrar)
-    async function guardarSkill(event) {
-        event.preventDefault();
+    function insertarEnInput(input, token) {
+        const val = input.value.trim();
+        input.value = val && !val.endsWith('+') && !val.endsWith('OR') ? `${val} ${token}` : `${val}${token}`;
+    }
 
+    function insertarGiroReloj() {
+        const stick = document.getElementById('giro-stick').value;
+        const desde = document.getElementById('giro-desde').value;
+        const hasta = document.getElementById('giro-hasta').value;
+        const sentido = document.getElementById('giro-sentido').value;
+        insertTokenGlobal(`${stick}(${desde},${hasta},${sentido})`);
+    }
+
+    function insertTokenGlobal(token) {
+        const destino = document.getElementById('asistente-destino').value;
+        const inputs = destino === 'ambos'
+            ? [document.getElementById('comandoPs'), document.getElementById('comandoXbox')]
+            : [document.getElementById(destino)];
+        inputs.forEach(input => insertarEnInput(input, token));
+    }
+
+    function limpiarComandos() {
+        document.getElementById('comandoPs').value = '';
+        document.getElementById('comandoXbox').value = '';
+    }
+
+    // Lógica de Edición de Skills
+    async function cargarParaEditar(id) {
         try {
-            const id = document.getElementById('skill-id').value;
-            let urlDelVideo = document.getElementById('url-video-oculto').value;
-            const archivo = document.getElementById('archivo-video').files[0];
+            const res = await fetch(`${API_URL}/${id}`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const skill = await res.json();
 
-            // 1. Si hay un video nuevo, lo subimos al servidor
-            if (archivo) {
-                const formData = new FormData();
-                formData.append("file", archivo);
+            document.getElementById('skillIdEditando').value = skill.id;
+            document.getElementById('nombre').value = skill.nombre;
+            document.getElementById('descripcionTactico').value = skill.descripcionTactico || '';
+            document.getElementById('urlVideoFallback').value = skill.urlVideo;
 
-                const uploadRes = await fetch(`${urlBase}/skills/upload`, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (!uploadRes.ok) throw new Error("Java rechazó el archivo. ¿Supera los 50MB?");
-                urlDelVideo = await uploadRes.text();
+            // Seleccionar la categoría coincidente en el select
+            const selectCat = document.getElementById('categoriaId');
+            for (let i = 0; i < selectCat.options.length; i++) {
+                if (selectCat.options[i].text.includes(skill.categoria)) {
+                    selectCat.selectedIndex = i;
+                    break;
+                }
             }
 
-            if (!urlDelVideo) return alert("Por favor, seleccioná un video para subir.");
+            // Comandos de cada plataforma
+            const cmdPs = skill.comandos ? skill.comandos.find(c => c.plataforma.toLowerCase() === 'playstation') : null;
+            const cmdXbox = skill.comandos ? skill.comandos.find(c => c.plataforma.toLowerCase() === 'xbox') : null;
+            document.getElementById('comandoPs').value = cmdPs ? cmdPs.comando : '';
+            document.getElementById('comandoXbox').value = cmdXbox ? cmdXbox.comando : '';
 
-            // 2. Guardamos la skill en la base de datos
-            const nuevaSkill = {
-                nombre: document.getElementById('nombre').value,
-                estrellas: parseInt(document.getElementById('estrellas').value),
-                urlVideo: urlDelVideo,
-                urlComando: document.getElementById('url-comando').value,
-                etiquetas: document.getElementById('etiquetas').value,
-                escenario: document.getElementById('escenario').value,
-                zona: { id: parseInt(document.getElementById('zona').value) }
-            };
+            // Cambiar estado visual del botón
+            document.getElementById('btn-submit').textContent = 'Actualizar Jugada';
+            document.getElementById('btn-cancelar-edicion').classList.remove('hidden');
 
-            const url = id ? `${urlBase}/skills/${id}` : `${urlBase}/skills`;
-            const skillRes = await fetch(url, {
-                method: id ? 'PUT' : 'POST',
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (e) {
+            console.error("Error al cargar skill:", e);
+            alert("No se pudo cargar la información de la skill.");
+        }
+    }
+
+    function cancelarEdicion() {
+        document.getElementById('form-skill').reset();
+        document.getElementById('skillIdEditando').value = '';
+        document.getElementById('btn-submit').textContent = 'Guardar Jugada';
+        document.getElementById('btn-cancelar-edicion').classList.add('hidden');
+    }
+
+    // Envío unificado (POST para crear, PUT para actualizar)
+    async function guardarSkill(event) {
+        event.preventDefault();
+        const idEditando = document.getElementById('skillIdEditando').value;
+        let urlVideoFinal = document.getElementById('urlVideoFallback').value;
+        const inputArchivo = document.getElementById('archivoVideo');
+
+        // Subida opcional de video si seleccionó un archivo nuevo
+        if (inputArchivo.files && inputArchivo.files[0]) {
+            const formData = new FormData();
+            formData.append('file', inputArchivo.files[0]);
+
+            try {
+                const uploadRes = await fetch(`${API_URL}/upload-video`, { method: 'POST', body: formData });
+                if (uploadRes.ok) {
+                    const data = await uploadRes.json();
+                    urlVideoFinal = data.urlVideo;
+                } else {
+                    alert("No se pudo subir el video al servidor.");
+                    return;
+                }
+            } catch (e) {
+                alert("Error de conexión al cargar el archivo multimedia.");
+                return;
+            }
+        }
+
+        const payload = {
+            nombre: document.getElementById('nombre').value.trim(),
+            categoriaId: parseInt(document.getElementById('categoriaId').value),
+            urlVideo: urlVideoFinal,
+            descripcionTactico: document.getElementById('descripcionTactico').value.trim(),
+            comandos: [
+                { plataforma: "PlayStation", comando: document.getElementById('comandoPs').value.trim() },
+                { plataforma: "Xbox", comando: document.getElementById('comandoXbox').value.trim() }
+            ]
+        };
+
+        const metodo = idEditando ? 'PUT' : 'POST';
+        const urlFinal = idEditando ? `${API_URL}/${idEditando}` : API_URL;
+
+        try {
+            const res = await fetch(urlFinal, {
+                method: metodo,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(nuevaSkill)
+                body: JSON.stringify(payload)
             });
 
-            if (!skillRes.ok) throw new Error("Hubo un error guardando los datos en MySQL.");
-
-            // 3. Limpiamos y festejamos
-            limpiarFormulario();
-            cargarTablaSkills();
-            alert("¡Jugada guardada con éxito en el catálogo!");
-
-        } catch (error) {
-            // Si algo explota, ahora SÍ nos va a avisar
-            alert("Error: " + error.message);
-            console.error(error);
+            if (res.ok) {
+                cancelarEdicion();
+                cargarTablaSkills();
+            } else {
+                const error = await res.json();
+                alert(`Error: ${error.mensaje || 'Error al guardar la jugada'}`);
+            }
+        } catch (err) {
+            alert("Error de conexión con el servidor.");
         }
     }
 
-    function prepararEdicion(skillCodificada) {
-        const skill = JSON.parse(decodeURIComponent(skillCodificada));
-
-        document.getElementById('form-titulo').textContent = 'Editar Jugada';
-        document.getElementById('skill-id').value = skill.id;
-        document.getElementById('nombre').value = skill.nombre;
-        document.getElementById('estrellas').value = skill.estrellas;
-        document.getElementById('zona').value = skill.zona.id;
-        document.getElementById('url-comando').value = skill.urlComando;
-        document.getElementById('etiquetas').value = skill.etiquetas || '';
-        document.getElementById('escenario').value = skill.escenario || '';
-        document.getElementById('url-video-oculto').value = skill.urlVideo;
-
-        // Hacemos scroll hacia arriba para que vea el formulario
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    async function borrarSkill(id) {
-        if(confirm("¿Estás seguro que querés borrar esta jugada del catálogo?")) {
-            await fetch(`${urlBase}/skills/${id}`, { method: 'DELETE' });
-            cargarTablaSkills();
-        }
-    }
-
-    function limpiarFormulario() {
-        document.getElementById('form-titulo').textContent = 'Añadir Nueva Skill';
-        document.getElementById('skill-id').value = '';
-        document.getElementById('form-skill').reset();
-    }
-
-    // ¡Arranque inicial!
-    inicializarAdmin();
+    // Carga inicial al entrar
+    cargarTablaSkills();
 </script>
 </body>
 </html>

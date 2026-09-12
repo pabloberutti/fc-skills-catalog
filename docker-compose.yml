@@ -1,16 +1,53 @@
-version: '3.8'
-
 services:
-  mysql-db:
+  mysqldb:
     image: mysql:8.0
-    container_name: fc_skills_db
+    container_name: fc_mysql_db
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: fc_skills
+      MYSQL_ROOT_PASSWORD: root
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build:
+      context: ./fc-backend
+      dockerfile: Dockerfile
+    container_name: fc_backend_api
+    restart: always
+    depends_on:
+      mysqldb:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/fc_skills?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    volumes:
+      - ./frontend/assets/videos:/app/frontend/assets/videos
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: fc_frontend_web
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      # Mapeo en vivo: podés editar index.html o app.js y refrescar sin recompilar
+      - ./frontend:/usr/share/nginx/html
+    depends_on:
+      - backend
 
 volumes:
   mysql_data:

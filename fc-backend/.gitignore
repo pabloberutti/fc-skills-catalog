@@ -31,3 +31,13 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Docker y volúmenes locales
+mysql_data/
+
+# Logs del sistema
+*.log
+
+# Archivos de sistema operativo
+.DS_Store
+Thumbs.db

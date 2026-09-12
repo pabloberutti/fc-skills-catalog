@@ -13,11 +13,17 @@
 <body class="bg-slate-900 text-white font-sans min-h-screen">
 
 <!-- Encabezado / Header -->
-<header class="bg-slate-950 border-b border-slate-800 p-6 text-center shadow-2xl">
-    <h1 class="text-4xl md:text-5xl font-black uppercase tracking-wider text-white">
-        🎮 <span class="text-fc">Meta</span> Skills
-    </h1>
-    <p class="text-slate-400 mt-2 font-medium tracking-wide">El catálogo definitivo para dominar la cancha</p>
+<header class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 pb-4 border-b border-slate-800">
+    <div>
+        <h1 class="text-3xl font-black uppercase tracking-wider text-white">
+            🎮 Catálogo <span class="text-fc">FC Skills</span>
+        </h1>
+        <p class="text-slate-400 text-sm mt-0.5">Guía de regates tácticos y comandos</p>
+    </div>
+
+    <div id="auth-contenedor" class="flex items-center gap-3">
+        <!-- El contenido se inyecta dinámicamente desde app.js -->
+    </div>
 </header>
 
 <!-- Contenido Principal -->
@@ -33,10 +39,42 @@
                placeholder="Buscar skill (ej. Ruleta, Elástica...)">
     </div>
 
-    <div id="filtros" class="mb-10 flex flex-wrap justify-center gap-3">
-        <button class="bg-fc font-bold py-2 px-6 rounded-full transition-transform hover:scale-105 shadow-[0_0_15px_rgba(0,255,135,0.3)]">Todas</button>
-        <button class="bg-slate-800 border border-slate-700 text-slate-300 font-bold py-2 px-6 rounded-full hover:bg-slate-700 transition-colors">En la banda</button>
-        <button class="bg-slate-800 border border-slate-700 text-slate-300 font-bold py-2 px-6 rounded-full hover:bg-slate-700 transition-colors">Dentro del área</button>
+    <div class="flex justify-center items-center gap-2 mb-6">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mr-2">Dispositivo:</span>
+        <button id="btn-ps" onclick="cambiarPlataforma('PlayStation')" class="px-4 py-1.5 rounded-full text-xs font-black transition-all bg-blue-600 text-white shadow-lg">
+            PlayStation
+        </button>
+        <button id="btn-xbox" onclick="cambiarPlataforma('Xbox')" class="px-4 py-1.5 rounded-full text-xs font-black transition-all bg-slate-800 text-slate-400 hover:text-white">
+            Xbox
+        </button>
+    </div>
+
+    <!-- Filtros Rápidos -->
+    <div id="filtros" class="mb-10 flex flex-wrap justify-center items-center gap-2.5">
+        <button onclick="seleccionarFiltro('TODAS', null, this)"
+                class="btn-filtro bg-fc font-bold py-2 px-5 rounded-full text-xs uppercase tracking-wider text-slate-950 transition-all shadow-[0_0_15px_rgba(0,255,135,0.3)]">
+            Todas
+        </button>
+        <button onclick="seleccionarFiltro('ESTRELLAS', 5, this)"
+                class="btn-filtro bg-slate-800 border border-slate-700 text-slate-300 font-bold py-2 px-5 rounded-full text-xs uppercase tracking-wider hover:bg-slate-700 transition-all">
+            5 Estrellas ★
+        </button>
+        <button onclick="seleccionarFiltro('ESTRELLAS', 4, this)"
+                class="btn-filtro bg-slate-800 border border-slate-700 text-slate-300 font-bold py-2 px-5 rounded-full text-xs uppercase tracking-wider hover:bg-slate-700 transition-all">
+            4 Estrellas ★
+        </button>
+        <button onclick="seleccionarFiltro('CATEGORIA', 'Banda', this)"
+                class="btn-filtro bg-slate-800 border border-slate-700 text-slate-300 font-bold py-2 px-5 rounded-full text-xs uppercase tracking-wider hover:bg-slate-700 transition-all">
+            Banda
+        </button>
+        <button onclick="seleccionarFiltro('CATEGORIA', 'Área', this)"
+                class="btn-filtro bg-slate-800 border border-slate-700 text-slate-300 font-bold py-2 px-5 rounded-full text-xs uppercase tracking-wider hover:bg-slate-700 transition-all">
+            Área
+        </button>
+        <button onclick="seleccionarFiltro('FAVORITOS', null, this)"
+                class="btn-filtro bg-slate-800 border border-slate-700 text-slate-300 font-bold py-2 px-5 rounded-full text-xs uppercase tracking-wider hover:bg-slate-700 transition-all flex items-center gap-1.5">
+            <span>❤️</span> Favoritos
+        </button>
     </div>
 
     <!-- Grilla de Tarjetas (Se adapta a 1, 2, 3 o 4 columnas según la pantalla) -->
@@ -54,11 +92,11 @@
     <h3 id="modal-titulo" class="text-2xl md:text-4xl font-black text-white uppercase tracking-wider mb-4 text-center shadow-black drop-shadow-lg"></h3>
     <p id="modal-escenario" class="text-slate-300 text-sm md:text-base italic mb-4 max-w-3xl text-center leading-relaxed px-4"></p>
 
-    <!-- Contenedor del Comando en pantalla grande -->
-    <div id="modal-comando-contenedor" class="mb-6 bg-slate-900/80 rounded-xl p-4 text-center border border-slate-700/50 min-w-[300px]">
-        <p class="text-[12px] text-slate-400 mb-2 uppercase tracking-widest font-bold">Ejecución</p>
-        <div id="modal-comando" class="flex flex-wrap justify-center items-center mt-2">
-            <!-- Acá JavaScript inyecta los botones -->
+    <!-- Contenedor del Comando en pantalla grande (Escalado) -->
+    <div id="modal-comando-contenedor" class="mb-8 bg-slate-900/90 rounded-2xl p-5 text-center border border-slate-700/60 min-w-[340px] shadow-2xl backdrop-blur-md">
+        <p class="text-[11px] text-slate-400 mb-3 uppercase tracking-widest font-black">Ejecución Táctica</p>
+        <div id="modal-comando" class="flex flex-wrap justify-center items-center gap-2 transform scale-125 md:scale-135 origin-center py-2 transition-transform">
+            <!-- JavaScript inyecta los mandos acá -->
         </div>
     </div>
 
@@ -69,5 +107,35 @@
 </div>
 
 <script src="app.js"></script>
+
+<div id="modal-auth" class="fixed inset-0 bg-black/85 hidden items-center justify-center p-4 z-50 transition-opacity duration-300 opacity-0">
+    <div class="bg-slate-800 border border-slate-700 w-full max-w-sm rounded-xl p-6 shadow-2xl relative">
+        <button onclick="cerrarModalAuth()" class="absolute top-4 right-4 text-slate-400 hover:text-white font-bold text-lg">&times;</button>
+
+        <h3 id="auth-titulo" class="text-lg font-black uppercase text-white mb-1">Iniciar Sesión</h3>
+        <p id="auth-subtitulo" class="text-xs text-slate-400 mb-4">Ingresá tus credenciales para sincronizar favoritos</p>
+
+        <form id="form-auth" onsubmit="ejecutarAuth(event)" class="flex flex-col gap-3">
+            <div>
+                <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Usuario</label>
+                <input type="text" id="auth-user" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-fc">
+            </div>
+            <div>
+                <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Contraseña</label>
+                <input type="password" id="auth-pass" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-fc">
+            </div>
+
+            <button type="submit" id="btn-auth-submit" class="mt-2 bg-fc font-black py-2.5 rounded-lg text-slate-950 uppercase tracking-wider text-xs hover:scale-[1.02] transition-transform shadow-[0_0_15px_rgba(0,255,135,0.25)]">
+                Entrar
+            </button>
+        </form>
+
+        <div class="mt-4 pt-3 border-t border-slate-700/60 text-center">
+            <button id="btn-switch-auth" onclick="alternarModoAuth()" class="text-xs text-fc hover:underline font-medium">
+                ¿No tenés cuenta? Registrate acá
+            </button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
